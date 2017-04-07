@@ -1,0 +1,36 @@
+{
+  "name": "gino",
+  "version": "0.9.9",
+  "description": "a single store",
+  "main": "index.js",
+  "author": "dexter",
+  "license": "MIT",
+  "scripts": {
+    "lint": "grunt tslint",
+    "watch": "tsc -w",
+    "test": "jest"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ]
+  },
+  "dependencies": {
+    "@types/immutable": "^3.8.7",
+    "@types/jest": "^19.2.2",
+    "@types/node": "^7.0.12",
+    "grunt": "^1.0.1",
+    "grunt-tslint": "^5.0.1",
+    "immutable": "^3.8.1",
+    "jest": "^19.0.2",
+    "ts-jest": "^19.0.8",
+    "tslint": "^5.0.0",
+    "typescript": "^2.2.2"
+  }
+}
