@@ -110,7 +110,9 @@ export default class Gino {
     if (Reflect.has(this, method)) {
       throw new Error(`Cannot add an API for the existing API: [ ${method} ] .`);
     }
-    Reflect.set(this, method, fn);
+    Reflect.defineProperty(this, method, {
+      value: (...args: any[]) => fn(this, args),
+    });
   }
 
   private _set(key: string, value: any) {

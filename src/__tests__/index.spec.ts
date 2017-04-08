@@ -50,8 +50,8 @@ describe('primitive ops', () => {
       store.update(() => {});
     };
 
-    expect(run1).toThrow(/an object with updated values/);
-    expect(run2).toThrow(/an object with updated values/);
+    expect(run1).toThrowError(/an object with updated values/);
+    expect(run2).toThrowError(/an object with updated values/);
   });
 
   it('should support getting all the values', () => {
@@ -101,5 +101,134 @@ describe('subscribe', () => {
     const stop = store.subscribe(shouldNotFire);
     stop();
     store.set('ppd', 'kky');
+  });
+
+  it('should fire subsrictions only once when updated', () => {
+    const store = new Gino();
+    let count = 0;
+      store.subscribe((data) => {
+        expect(data).toEqual({ abc: 10, bbc: 20 });
+        count += 1;
+      });
+      store.update(data => ({ abc: 10, bbc: 20}));
+      expect(count).toBe(1);
+  });
+});
+
+describe('watch', () => {
+  it('should receive updated for a given key', () => {
+    const store = new Gino();
+    store.set('xxx', 1);
+    const gotItems = [];
+
+    store.watch('xxx', result => {
+      gotItems.push(result);
+    });
+
+    store.set('xxx', 10);
+    store.set('xxx', 20);
+
+    expect(gotItems).toEqual([10, 20]);
+  });
+
+  it('should not receive updates for some other key', () => {
+    const store = new Gino();
+    const gotItems = [];
+
+    store.watch('xxx', result => {
+      gotItems.push(result);
+    });
+
+    store.set('yyy', 10);
+    store.set('xxx', 20);
+    expect(gotItems).toEqual([20]);
+  });
+
+  it('should receive manual firings for a key', () => {
+    const store = new Gino();
+    const gotItems = [];
+
+    store.watch('xxx', result => {
+      gotItems.push(result);
+    });
+
+    store.set('xxx', 10);
+    store.fire('xxx', 20);
+
+    expect(gotItems).toEqual([10, 20]);
+    expect(store.get('xxx')).toBe(10);
+  });
+
+  it('should not receive updates after stopped', () => {
+    const store = new Gino();
+    const stop = store.watch('xxx', shouldNotFire);
+    stop();
+    store.set('xxx', 123);
+  });
+
+  it('should receive updates if the given key meets the expected', () => {
+    const store = new Gino();
+    const gotItems = [];
+
+    store.watchFor('xxx', 123, result => {
+      gotItems.push(result);
+    });
+
+    store.set('xxx', 321);
+    store.set('xxx', 'hello');
+    store.set('xxx', 123);
+    expect(gotItems).toEqual([123]);
+  });
+
+  it('should not receive updates if the given key does not meets the expected', () => {
+    const store = new Gino();
+    store.set('xxx', 1);
+
+    store.watchFor('xxx', 20, shouldNotFire);
+    store.set('xxx', 10);
+  });
+
+  it('should receive manual firings for a key', () => {
+    const store = new Gino();
+    store.set('xxx', 1);
+    const gotItems = [];
+
+    store.watchFor('xxx', 40, (result) => {
+      gotItems.push(result);
+    });
+
+    store.set('xxx', 10);
+    store.fire('xxx', 40);
+
+    expect(gotItems).toEqual([40]);
+    expect(store.get('xxx')).toEqual(10);
+  });
+
+  it('should not receive updates after stopped', () => {
+    const store = new Gino();
+    const stop = store.watchFor('xxx', 123, shouldNotFire);
+    stop();
+    store.set('xxx', 123);
+  });
+});
+
+describe('registerAPI', () => {
+  it('should add new APIs to the store', () => {
+    const store = new Gino({ lights: false });
+    store.registerAPI('toggle', (s, key) => {
+      s.set(key, !store.get(key));
+      return s.get(key);
+    });
+
+    expect(store.toggle('lights')).toBe(true);
+  });
+
+  it('should not override existing APIs', () => {
+    const store = new Gino({ lights: false });
+    const run = () => {
+      store.registerAPI('set', () => null);
+    };
+
+    expect(run).toThrowError(/Cannot add an API for the existing API: \[ set \]/);
   });
 });
