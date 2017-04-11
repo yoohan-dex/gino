@@ -211,10 +211,12 @@ describe('watch', () => {
     store.set('xxx', 123);
   });
 });
-
+interface NewStore extends Gino {
+  toggle(key: string): boolean;
+}
 describe('registerAPI', () => {
   it('should add new APIs to the store', () => {
-    const store = new Gino({ lights: false });
+    const store = <NewStore>new Gino({ lights: false });
     store.registerAPI('toggle', (s, key) => {
       s.set(key, !store.get(key));
       return s.get(key);

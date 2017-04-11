@@ -11,7 +11,7 @@ export type WatchCallbacks = {
 };
 
 export default class Gino {
-  public data: Immutable.Map<{}, {}>;
+  public data: Immutable.Map<string, any>;
   public callbacks: SubsribeFunctoins;
   public watchCallbacks: WatchCallbacks;
 
