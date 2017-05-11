@@ -18,6 +18,7 @@
   "files": [
     // "src/index.ts",
     // "src/Gino/index.ts",
+    "src/lynx/index.ts",
     "typings.d.ts"
   ],
   "include": [
